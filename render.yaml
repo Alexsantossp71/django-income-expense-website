@@ -1,0 +1,40 @@
+databases:
+  - name: expenses-db
+    plan: free
+services:
+  - type: web
+    name: django-income-expense-website
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python expenseswebsite/manage.py collectstatic --noinput
+    startCommand: gunicorn expenseswebsite.wsgi --chdir expenseswebsite
+    healthCheckPath: /login/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "*"
+      - key: DB_NAME
+        fromDatabase:
+          name: expenses-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: expenses-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: expenses-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: expenses-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: expenses-db
+          property: port
